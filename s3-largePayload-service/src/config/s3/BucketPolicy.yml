@@ -1,0 +1,15 @@
+Type: AWS::S3::BucketPolicy
+Properties:
+  Bucket: !Ref TrackaPetsBucket
+  PolicyDocument:
+    Statement:
+      - Sid: PublicRead
+        Effect: Allow
+        Principal: '*'
+        Action:
+          - s3:GetObject
+          - s3:PutObject
+        Resource: arn:aws:s3:::${self:custom.S3LargeFileUploadBucket.name}/*
+        Condition:
+          Bool:
+            aws:SecureTransport: 'true'

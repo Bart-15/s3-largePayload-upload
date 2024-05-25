@@ -1,0 +1,51 @@
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+org: barty13
+# Welcome to Serverless!
+#
+# This file is the main config file for your service.
+# It's very minimal at this point and uses default values.
+# You can always add more config options for more control.
+# We've included some commented out config examples here.
+# Just uncomment any of them to get that config option.
+#
+# For full config options, check the docs:
+#    docs.serverless.com
+#
+# Happy Coding!
+
+service: s3-large-payload-service
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+
+  # you can overwrite defaults here
+  stage: dev
+  region: ap-southeast-1
+  environment:
+    LARGEFILE_BUCKET: ${self:custom.S3LargeFileUploadBucket.name}
+  iam:
+    role:
+      statements: ${file(src/config/iam/IamRoleStatements.yml)}
+
+plugins:
+  serverless-webpack # serverless webpack plugin
+  # - serverless-plugin-typescript
+  - serverless-offline
+
+resources:
+  Resources:
+
+# Lambda Functions
+functions:
+  - ${file(src/config/functions/S3FileUploadFunctions.yml)}
+
+
+custom:
+  webpack:
+    webpackConfig: 'webpack.config.js'
+    includeModules: true # Node modules configuration for packaging
+    packager: 'npm' # Packager that will be used to package your external modules
+    excludeFiles: src/**/*.test.js
+  S3LargeFileUploadBucket:
+    name: <s3-bucket-name> 

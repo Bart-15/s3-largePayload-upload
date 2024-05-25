@@ -1,0 +1,13 @@
+getSignedUrl:
+  handler: src/handlers/getSignedUrl.handler
+  events:
+    - http:
+        path: /getSignedUrl
+        method: GET
+        cors: true
+executePayload:
+  handler: src/handlers/executePayload.handler
+  events:
+    - s3:
+        bucket: ${self:custom.S3LargeFileUploadBucket.name}
+        event: s3:ObjectCreated:*
