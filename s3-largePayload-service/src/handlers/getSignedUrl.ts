@@ -1,34 +1,41 @@
 import { ProxyHandler } from '@/types/handler.types';
-import { generateUUID } from '../helpers/const';
+
 import { LargeFileBucket, s3 } from '../config/config';
+import { generateUUID, headers, validImageMimeTypes } from '../helpers/const';
+import corsMiddleware from '../middleware/corsMiddleware';
+import { handleError, HttpError } from '../middleware/errorHandler';
 
 const getSignedUrl: ProxyHandler = async event => {
   try {
+    const reqBody = JSON.parse(event.body as string);
+
+    const { fileType } = reqBody;
+
+    if (!validImageMimeTypes.includes(fileType)) {
+      throw new HttpError(400, {
+        message: 'Invalid file type. Only images are allowed.',
+      });
+    }
+
     const expiresIn = 60 * 5;
+
+    const fileName = `${generateUUID()}.jpg`;
 
     const url = s3.getSignedUrl('putObject', {
       Bucket: LargeFileBucket,
-      Key: generateUUID(),
+      Key: fileName,
       Expires: expiresIn,
       ContentType: 'application/json',
     });
 
     return {
       statusCode: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: JSON.stringify({ url }),
+      headers,
+      body: JSON.stringify({ url, fileName: fileName }),
     };
   } catch (error) {
-    return {
-      statusCode: 400,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: JSON.stringify({ error }),
-    };
+    return handleError(error);
   }
 };
 
-export const handler = getSignedUrl;
+export const handler = corsMiddleware(getSignedUrl);

@@ -3,7 +3,14 @@ getSignedUrl:
   events:
     - http:
         path: /getSignedUrl
-        method: GET
+        method: POST
+        cors: true
+generateSignedUrl:
+  handler: src/handlers/generateSignedUrl.handler
+  events:
+    - http:
+        path: /generateSignedUrl
+        method: POST
         cors: true
 executePayload:
   handler: src/handlers/executePayload.handler

@@ -1,5 +1,8 @@
 import { S3Event } from 'aws-lambda';
+
 import { s3 } from '../config/config';
+import corsMiddleware from '../middleware/corsMiddleware';
+import { handleError } from '../middleware/errorHandler';
 
 const executePayload = async (event: S3Event) => {
   try {
@@ -9,19 +12,13 @@ const executePayload = async (event: S3Event) => {
       Key: s3Event.object.key,
     };
 
-    let data = await s3.getObject(params).promise();
-    let result = JSON.parse(data.Body?.toString() as string);
+    const data = await s3.getObject(params).promise();
+    const result = JSON.parse(data.Body?.toString() as string);
 
     console.log(result);
   } catch (error) {
-    return {
-      statusCode: 400,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: JSON.stringify({ message: 'Oooops, something went wrong. Please try again later.' }),
-    };
+    return handleError(error);
   }
 };
 
-export const handler = executePayload;
+export const handler = corsMiddleware(executePayload);
