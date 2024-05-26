@@ -4,7 +4,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '',
+        hostname: 'largefile-bucket-dev.s3.ap-southeast-1.amazonaws.com',
         pathname: '**',
       },
     ],
